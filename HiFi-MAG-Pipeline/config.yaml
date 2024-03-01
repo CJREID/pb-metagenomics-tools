@@ -7,7 +7,7 @@ checkm2:
   # The number of threads to use for CheckM.
   threads: 10
   # Path to CheckM2 .dmnd database; accessible at https://zenodo.org/api/records/5571251/files/checkm2_database.tar.gz/content
-  database_path: "/scratch3/rei219/pbpb-metagenomics-tools/HiFi-MAG-Pipeline/CheckM2_database/uniref100.KO.1.dmnd"
+  database_path: "path/to/db"
 
 minimap:
   # The number of threads to use for minimap2.
