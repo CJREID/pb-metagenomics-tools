@@ -1,7 +1,7 @@
 import os
 
 localrules: 
-    Checkm2Database, LongContigsToBins, CloseLongbinFork, StopLongBinCheckm2, FilterCompleteContigs,
+    LongContigsToBins, CloseLongbinFork, StopLongBinCheckm2, FilterCompleteContigs,
     ConvertJGIBamDepth, DASinputMetabat2, DASinputSemiBin2, CopyDAStoolBins, AssessCheckm2Bins,
     CloseCheckm2Fork, SkipGTDBAnalysis, GTDBTkCleanup, MAGSummary, MAGPlots, all
 
@@ -18,28 +18,6 @@ rule all:
         expand(os.path.join(CWD,"6-checkm2","{sample}","checkm2","quality_report.tsv"), sample = SAMPLES),
         expand(os.path.join(CWD,"6-checkm2","{sample}","{sample}.BinCount.txt"), sample = SAMPLES),
         expand(os.path.join(CWD,"8-summary","{sample}","{sample}.Complete.txt"), sample = SAMPLES)
-
-##################################################################################################
-# Setup CheckM2
-
-rule Checkm2Database:
-    input:
-        contigs = expand(os.path.join(CWD, "inputs", "{sample}.contigs.fasta"), sample = SAMPLES)
-    output:
-        key = os.path.join(CWD, "CheckM2_database", "uniref100.KO.1.dmnd"),
-        complete = os.path.join(CWD, "CheckM2_database", "CheckM2.complete.txt")
-    conda:
-        "envs/checkm2.yml"
-    threads:
-        1
-    params:
-        installdir = CWD
-    log:
-        os.path.join(CWD, "logs", "Checkm2Database.log")
-    benchmark:
-        os.path.join(CWD, "benchmarks", "Checkm2Database.tsv")
-    shell:
-        "checkm2 database --download --path {params.installdir} &> {log} && touch {output.complete}"
 
 ##################################################################################################
 # Completeness-aware binning steps
@@ -111,7 +89,6 @@ rule StopLongBinCheckm2:
 # Checkpoint 1: Fork 2 - Long contigs found, sample moves through Checkm2ContigAnalysis -> FilterCompleteContigs
 rule Checkm2ContigAnalysis:
     input:
-        db = os.path.join(CWD, "CheckM2_database", "uniref100.KO.1.dmnd"),
         key = os.path.join(CWD, "1-long-contigs", "{sample}", "{sample}.bin_key.txt")
     output:
         os.path.join(CWD, "1-long-contigs", "{sample}", "checkm2", "quality_report.tsv")
@@ -120,6 +97,7 @@ rule Checkm2ContigAnalysis:
     threads: 
         config["checkm2"]["threads"]
     params:
+        db = config["checkm2"]["database_path"],
         indir = os.path.join(CWD, "1-long-contigs", "{sample}", "bins", ""),
         outdir = os.path.join(CWD, "1-long-contigs", "{sample}", "checkm2", ""),
         tmp = config["tmpdir"]
@@ -129,7 +107,7 @@ rule Checkm2ContigAnalysis:
         os.path.join(CWD, "benchmarks", "{sample}.Checkm2ContigAnalysis.tsv")
     shell:
         "checkm2 predict -i {params.indir} -o {params.outdir} -x fa -t {threads} --force "
-        "--database_path {input.db} --remove_intermediates --tmpdir {params.tmp} &> {log}"
+        "--database_path {params.db} --remove_intermediates --tmpdir {params.tmp} &> {log}"
 
 # Checkpoint 1: Fork 2 - Long contigs found, sample moves through Checkm2ContigAnalysis -> FilterCompleteContigs
 rule FilterCompleteContigs:

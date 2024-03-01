@@ -1,15 +1,17 @@
 # The path to use as the temporary directory to write large files to, which is used for
 # SemiBin2 and GTDB-Tk. If you do not have access to "/scratch" on HPC or are running
 # snakemake locally, change to a valid directory.
-tmpdir: "/scratch"
+tmpdir: "/scratch3/rei219"
 
 checkm2:
   # The number of threads to use for CheckM.
-  threads: 24
+  threads: 10
+  # Path to CheckM2 .dmnd database; accessible at https://zenodo.org/api/records/5571251/files/checkm2_database.tar.gz/content
+  database_path: "/scratch3/rei219/pbpb-metagenomics-tools/HiFi-MAG-Pipeline/CheckM2_database/uniref100.KO.1.dmnd"
 
 minimap:
   # The number of threads to use for minimap2.
-  threads: 24
+  threads: 10
   
 # The settings below will affect the completeness-aware binning step.
 completeness_aware:
@@ -24,14 +26,14 @@ completeness_aware:
 
 metabat:
   # The number of threads to use for metabat2.
-  threads: 12
+  threads: 10
 
   # minimum size of contig to be included in binning
   min_contig_size: 30000
 
 semibin:
   # The number of threads to use for semibin2.
-  threads: 48
+  threads: 64
 
   # Set model flag. To change the model use "--environment=MODEL" below.
   # Choices include: human_gut, human_oral, dog_gut, cat_gut, mouse_gut, pig_gut, chicken_caecum,
@@ -46,7 +48,7 @@ semibin:
 
 dastool:
   # The number of threads to use for DAS Tool.
-  threads: 24
+  threads: 10
 
   # The engine for single copy gene searching, choices include:
   # blast, diamond, usearch.
@@ -62,17 +64,17 @@ dastool:
 filters:
   # Set the quality filters that are applied to MAGs
   # The minimum percent completeness for a genome bin.
-  min_completeness: 70
+  min_completeness: 50
 
   # The maximum percent contamination for a genome bin.
-  max_contamination: 10
+  max_contamination: 20
 
   # The maximum number of contigs allowed in a genome bin.
   max_contigs: 20
 
 gtdbtk:
   # The number of threads to use for gtdb-tk.
-  threads: 48
+  threads: 10
 
   # The path the database downloaded for gtdbtk.
   # Current requirement is for GTDB-Tk v 2.1.1, which requires database R207_v2
@@ -82,5 +84,5 @@ gtdbtk:
   # Please note that the data for release 207 are >68GB in size.
   # The path below must point to the directory than contains the following folders:
   # fastani, markers, masks, metadata, mrca_red, msa, pplacer, radii, split, taxonomy
-  gtdbtk_data: "/dept/appslab/datasets/dp_gtdb/release207_v2"
+  gtdbtk_data: "/scratch3/rei219/release207_v2"
   
